@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	socketio "github.com/googollee/go-socket.io"
+	utils "gitlab.com/stockboi/marco-polo/lib"
 )
 
 func main() {
+	playWithHashMaps()
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
@@ -45,4 +48,17 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 	log.Println("Serving at localhost:3000...")
 	log.Fatal(http.ListenAndServe(":3000", nil))
+}
+
+func playWithHashMaps() {
+	outer := make(map[string]*utils.HashMap)
+	outer["api1"] = utils.NewHashMapDefault()
+	outer["api2"] = utils.NewHashMapDefault()
+
+	outer["api1"].Insert(`{"id":"10.0.0.1", "lat":12.4, "long":13.5, "tags":{"a":"b"}}`)
+	outer["api2"].Insert(`{"id":"10.0.0.2", "lat":12.4, "long":13.5, "tags":{"a":"b"}}`)
+
+	fmt.Println(outer["api1"].FlushMap())
+	time.Sleep(10 * time.Second)
+	fmt.Println(outer["api2"].FlushMap())
 }
