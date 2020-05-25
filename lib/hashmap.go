@@ -72,9 +72,9 @@ func (x *HashMap) Insert(json string) {
 
 // RemoveAfterTTL removes the given id from HashMap after the given TTL
 func (x *HashMap) RemoveAfterTTL(id string, ttl int) {
-	ticker := time.NewTicker(time.Duration(ttl) * time.Second)
+	timer := time.NewTimer(time.Duration(ttl) * time.Second)
 	go func() {
-		<-ticker.C
+		<-timer.C
 		x.Remove(id)
 	}()
 }
