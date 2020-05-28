@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	playWithHashMaps()
+	go playWithHashMaps()
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +47,7 @@ func main() {
 	http.Handle("/socket/", server)
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 	log.Println("Serving at localhost:3000...")
+	log.Println("Check Home Page at http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
