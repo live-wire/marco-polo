@@ -2,19 +2,19 @@ package lib
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"sync"
 	"time"
-	"fmt"
-	"errors"
 )
 
-var defaultTTL = 5         // seconds
+var defaultTTL = 5       // seconds
 var defaultMaxSize = 100 // items in map
 
 // HashMap is a thread safe implementation that keeps deleting items after
 type HashMap struct {
-	IpDb 	*IpDb
+	IpDb    *IpDb
 	MaxSize int
 	TTL     int
 	Data    map[string]MarcoPoloMessage
@@ -24,6 +24,7 @@ type HashMap struct {
 // MarcoPoloMessage is the json message structure of incomming messages
 type MarcoPoloMessage struct {
 	Ip        string            `json:"ip"`
+	Src       string            `json:"src,omitempty"`
 	Lat       float32           `json:"lat,omitempty"`
 	Long      float32           `json:"long,omitempty"`
 	Tags      map[string]string `json:"tags,omitempty"`
@@ -32,14 +33,14 @@ type MarcoPoloMessage struct {
 
 // GeoJson message structure
 type GeoJson struct {
-	Type string 				 `json:"type"`
-	Geometry Geometry 			 `json:"geometry"`
+	Type       string            `json:"type"`
+	Geometry   Geometry          `json:"geometry"`
 	Properties map[string]string `json:"properties"`
 }
 
 // Geometry object in GeoJson
 type Geometry struct {
-	Type string 		  `json:"type"`
+	Type        string    `json:"type"`
 	Coordinates []float32 `json:"coordinates"`
 }
 
@@ -61,32 +62,28 @@ func NewHashMap(ttl int, size int, ipdb *IpDb) *HashMap {
 	return &hashMap
 }
 
-// parseJSONString parses a Json string to type MarcoPolo
-func parseJSONString(message string) (*MarcoPoloMessage, error) {
-	res := MarcoPoloMessage{}
+// ParseJSONString parses a Json string to type MarcoPolo
+func ParseJSONString(message string) (*MarcoPoloMessage, string, error) {
+	res := MarcoPoloMessage{Src: "default"}
 	err := json.Unmarshal([]byte(message), &res)
-	return &res, err
+	src := res.Src
+	return &res, src, err
 }
 
 // Insert puts key into the map and removes it after TTL
-func (x *HashMap) Insert(json string) {
+func (x *HashMap) Insert(message *MarcoPoloMessage) {
 	x.L.Lock()
 	defer x.L.Unlock()
-	log.Println("Inserting " + json)
-	message, err := parseJSONString(json)
-	if err != nil {
-		log.Println("Insertion failed" + err.Error())
-		return
-	}
+
 	if len(x.Data) >= x.MaxSize {
 		// TODO: improve this logic
 		log.Println("Insertion failed, Map too full.")
 		return
 	}
-	err = enrichMessage(message, x)
+	err := enrichMessage(message, x)
 	if err != nil {
 		log.Println("Message not enriched", err)
-		if (message.Lat == 0 && message.Long == 0) {
+		if message.Lat == 0 && message.Long == 0 {
 			return
 		}
 	}
@@ -95,7 +92,18 @@ func (x *HashMap) Insert(json string) {
 	fmt.Println("Insert SUCCESS")
 }
 
-func enrichMessage(message *MarcoPoloMessage, x*HashMap) error {
+// InsertString for inserting json strings
+func (x *HashMap) InsertString(json string) {
+	log.Println("Inserting " + json)
+	message, _, err := ParseJSONString(json)
+	if err != nil {
+		log.Println("Insertion failed" + err.Error())
+		return
+	}
+	x.Insert(message)
+}
+
+func enrichMessage(message *MarcoPoloMessage, x *HashMap) error {
 	val, err := x.IpDb.Lookup(message.Ip)
 	if err != nil {
 		return err
@@ -144,6 +152,13 @@ func (x *HashMap) FlushMap() string {
 
 // FlushGeoJson flushes current map in a GeoJson format
 func (x *HashMap) FlushGeoJson() string {
+	arr := x.GetGeoJson()
+	ret, _ := json.Marshal(arr)
+	return string(ret)
+}
+
+// GetGeoJson fetches list of current geoJsonObjects
+func (x *HashMap) GetGeoJson() []*GeoJson {
 	x.L.Lock()
 	defer x.L.Unlock()
 	arr := []*GeoJson{}
@@ -151,8 +166,7 @@ func (x *HashMap) FlushGeoJson() string {
 		geoJson := getGeoJsonObject(v)
 		arr = append(arr, geoJson)
 	}
-	ret, _ := json.Marshal(arr)
-	return string(ret)
+	return arr
 }
 
 // getGeoJsonObject constructs a GeoJson object
