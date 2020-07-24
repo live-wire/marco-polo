@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+message Message {
+  string ip = 1;
+  string src = 2;
+  float lat = 3;
+  float long = 4;
+  map<string, string> tags = 5;
+  int64 timestamp = 6;
+}
+
+message Burp {
+  int32 status = 1;
+  string message = 2;
+}
+
+service MarcoPoloService {
+  rpc Consume(Message) returns (Burp) {}
+}
