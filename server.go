@@ -82,7 +82,6 @@ func initServers(marcoPoloService *marcoPoloService) {
 			go seedHashMap(marcoPoloService.HashMaps["default"])
 		}
 	}
-
 	go initGrpc(marcoPoloService)
 	initHTTP(marcoPoloService) // blocking call
 }
@@ -103,50 +102,44 @@ func initGrpc(marcoPoloService *marcoPoloService) {
 func initHTTP(marcoPoloService *marcoPoloService) {
 	r := mux.NewRouter()
 	r.Handle("/", http.FileServer(http.Dir("./static")))
-	r.HandleFunc("/list", httpServeWrapperList(marcoPoloService.HashMaps))
-	r.HandleFunc("/flush", httpServeWrapperAll(marcoPoloService.HashMaps))
-	r.HandleFunc("/flush/{src}", httpServeWrapper(marcoPoloService.HashMaps))
+	r.HandleFunc("/list", marcoPoloService.httpServeWrapperList)
+	r.HandleFunc("/flush", marcoPoloService.httpServeWrapperAll)
+	r.HandleFunc("/flush/{src}", marcoPoloService.httpServeWrapper)
 	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("OK")) })
 	http.Handle("/", r)
 	log.Printf("Marco Polo - HTTP up on %v \n", portOutgoing)
 	log.Fatal(http.ListenAndServe(portOutgoing, nil))
 }
 
-func httpServeWrapperList(hashMaps map[string]*utils.HashMap) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, req *http.Request) {
-		retMap := make(map[string][]string)
-		retMap["list"] = make([]string, 0)
-		for k := range hashMaps {
-			retMap["list"] = append(retMap["list"], k)
-		}
-		ret, _ := json.Marshal(retMap)
-		w.Write([]byte(ret))
+func (s *marcoPoloService) httpServeWrapperList(w http.ResponseWriter, req *http.Request) {
+	retMap := make(map[string][]string)
+	retMap["list"] = make([]string, 0)
+	for k := range s.HashMaps {
+		retMap["list"] = append(retMap["list"], k)
 	}
+	ret, _ := json.Marshal(retMap)
+	w.Write([]byte(ret))
 }
 
-func httpServeWrapper(hashMaps map[string]*utils.HashMap) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, req *http.Request) {
-		src := mux.Vars(req)["src"]
-		log.Println("Request received from:", src)
-		ret := fmt.Sprintf(`{"%s":[]}`, src)
-		if val, ok := hashMaps[src]; ok {
-			//do something here
-			ret = fmt.Sprintf(`{"%s":%s}`, src, val.FlushGeoJson())
-		}
-		w.Write([]byte(ret))
+func (s *marcoPoloService) httpServeWrapper(w http.ResponseWriter, req *http.Request) {
+	src := mux.Vars(req)["src"]
+	log.Println("Request received from:", src)
+	ret := fmt.Sprintf(`{"%s":[]}`, src)
+	if val, ok := s.HashMaps[src]; ok {
+		//do something here
+		ret = fmt.Sprintf(`{"%s":%s}`, src, val.FlushGeoJson())
 	}
+	w.Write([]byte(ret))
 }
 
-func httpServeWrapperAll(hashMaps map[string]*utils.HashMap) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, req *http.Request) {
-		retMap := make(map[string][]*utils.GeoJson)
-		ret := []byte(`{"default": []}`)
-		for k, v := range hashMaps {
-			retMap[k] = v.GetGeoJson()
-		}
-		ret, _ = json.Marshal(retMap)
-		w.Write(ret)
+func (s *marcoPoloService) httpServeWrapperAll(w http.ResponseWriter, req *http.Request) {
+	retMap := make(map[string][]*utils.GeoJson)
+	ret := []byte(`{"default": []}`)
+	for k, v := range s.HashMaps {
+		retMap[k] = v.GetGeoJson()
 	}
+	ret, _ = json.Marshal(retMap)
+	w.Write(ret)
 }
 
 func seedHashMap(hashMap *utils.HashMap) {
