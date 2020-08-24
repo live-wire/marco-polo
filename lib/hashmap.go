@@ -175,8 +175,8 @@ func getGeoJsonObject(v MarcoPoloMessage) *GeoJson {
 	geoJson.Type = "Feature"
 	geoJson.Geometry.Type = "Point"
 	geoJson.Geometry.Coordinates = make([]float32, 2)
-	geoJson.Geometry.Coordinates[0] = v.Lat
-	geoJson.Geometry.Coordinates[1] = v.Long
+	geoJson.Geometry.Coordinates[0] = v.Long
+	geoJson.Geometry.Coordinates[1] = v.Lat
 	if v.Tags != nil {
 		geoJson.Properties = v.Tags
 	} else {

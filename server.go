@@ -101,7 +101,7 @@ func initGrpc(marcoPoloService *marcoPoloService) {
 
 func initHTTP(marcoPoloService *marcoPoloService) {
 	r := mux.NewRouter()
-	r.Handle("/", http.FileServer(http.Dir("./static")))
+	r.PathPrefix("/map").Handler(http.StripPrefix("/map/", http.FileServer(http.Dir("./static/"))))
 	r.HandleFunc("/list", marcoPoloService.httpServeWrapperList)
 	r.HandleFunc("/flush", marcoPoloService.httpServeWrapperAll)
 	r.HandleFunc("/flush/{src}", marcoPoloService.httpServeWrapper)
@@ -147,7 +147,7 @@ func seedHashMap(hashMap *utils.HashMap) {
 	min := 0
 	getRand := func() int { return rand.Intn(max-min) + min }
 	for {
-		hashMap.InsertString(fmt.Sprintf(`{"ip":"2.0.%d.1", "lat":12.4, "long":13.5, "tags":{"a":"b"}}`, getRand()))
+		hashMap.InsertString(fmt.Sprintf(`{"ip":"2.0.%d.1", "tags":{"a":"b"}}`, getRand()))
 		hashMap.InsertString(fmt.Sprintf(`{"ip":"1.%d.1.1"}`, getRand()))
 		hashMap.InsertString(fmt.Sprintf(`{"ip":"20.0.%d.0", "lat":12.4, "long":13.5, "tags":{"a":"b"}}`, getRand()))
 		time.Sleep(1 * time.Second)
