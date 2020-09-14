@@ -10,7 +10,7 @@ const svg = d3.create("svg")
     .attr("id", "svgd3")
     .attr("width", width)
     .attr("height", height)
-    .attr("viewbox", [0, 0, width, height])
+    .attr("viewBox", [150, 0, width / 1.25, height / 1.25 ])
     .attr("style", "background-color: #02101b");
 
 svg.append("path")
