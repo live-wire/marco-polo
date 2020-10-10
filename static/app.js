@@ -6,18 +6,27 @@ const projection = d3.geoMercator().fitSize([width, height], geoJSON);
 
 const geoGenerator = d3.geoPath(projection);
 
+
+
 const svg = d3.create("svg")
     .attr("id", "svgd3")
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [150, 0, width / 1.25, height / 1.25 ])
-    .attr("style", "background-color: #02101b");
+    .attr("style", "background-color: #02101b")
 
-svg.append("path")
-    .datum(geoJSON)
-    .attr("d", geoGenerator)
+const countries = svg.append("g")
     .attr("fill", "#2a2b28")
-    .attr("stroke", "none");
+    .attr("stroke", "none")
+    .attr("cursor", "pointer")
+    .selectAll("path")
+    .data(geoJSON.features)
+    .join("path")
+    .attr("d", geoGenerator);
+
+countries.append("title")
+    .text(d => d.properties["NAME"])
+
 
 const trafficPath = svg.append("path")
     .attr("fill", "red")
