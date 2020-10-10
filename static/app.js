@@ -7,13 +7,12 @@ const projection = d3.geoMercator().fitSize([width, height], geoJSON);
 const geoGenerator = d3.geoPath(projection);
 
 
-
-const svg = d3.create("svg")
-    .attr("id", "svgd3")
+const svg = d3.select("body")
+    .append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [150, 0, width / 1.25, height / 1.25 ])
-    .attr("style", "background-color: #02101b")
+    .style("background-color", "#02101b")
 
 const countries = svg.append("g")
     .attr("fill", "#2a2b28")
@@ -27,23 +26,27 @@ const countries = svg.append("g")
 countries.append("title")
     .text(d => d.properties["NAME"])
 
-
-const trafficPath = svg.append("path")
+const traffic = svg.append("g")
     .attr("fill", "red")
-    .attr("stroke", "none");
+    .attr("stroke", "none")
+    .attr("cursor", "pointer");
 
 
 setInterval(() => {
-    const traffic = {"type": "FeatureCollection", "features": []}
-    
     fetchLiveTraffic().then(d=>{
-        traffic["features"] = d["default"]; // TODO: hardcoded default here (Use the selected service 
-    }).then(() => {
-        trafficPath.datum(traffic)
-        .attr("d", geoGenerator)   
-    })
-}, 3000)    
+        const data = d["default"]; // TODO: hardcoded default here (Use the selected service 
 
-    
-document.body.append(svg.node());
+        traffic.selectAll("path")
+            .data(data)
+            .join("path")
+            .attr("d", geoGenerator)
+            .selectAll("title")
+            .data((d, i) => data.slice(i, i+1))
+            .join("title")
+            .text(d => `${d.properties.ip}, ${d.properties.city}, ${d.properties.country}`)
+
+    })
+}, 3000);
+
+
 
