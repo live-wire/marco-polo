@@ -39,7 +39,7 @@ func (s *marcoPoloService) Consume(ctx context.Context, in *pb.Message) (*pb.Bur
 // Validate validates input to MarcoPolo
 func Validate(in *pb.Message) (valid bool, message string) {
 	if len(in.Ip) == 0 {
-		return false, "Ip field is compulsary"
+		return false, "Ip field is compulsory"
 	}
 	if len(in.Src) == 0 {
 		in.Src = "default"
