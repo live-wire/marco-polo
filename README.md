@@ -5,7 +5,9 @@ This is a lightweight service that will plot all your incomming request traffic 
 
 ### Development Setup
 #### Docker (recommended)
-- TODO
+- `docker build -t marcopolo:localtest`
+- `docker run -p 1254:1254 -p 1324:1324 marcopolo:localtest -dummy` (`-dummy` will seed dummy data to the server)
+
 #### Local
 - Set your `$GOPATH` to `~/go/` if not already set.
 - Clone this repository in the following path: `$GOPATH/src/github.com/live-wire/marco-polo`
