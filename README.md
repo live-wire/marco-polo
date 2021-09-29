@@ -5,6 +5,7 @@ This is a lightweight service that will plot all your incomming request traffic 
 
 ![DockerHub](https://github.com/live-wire/marco-polo/actions/workflows/push-to-dockerhub-on-release.yaml/badge.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/live-wire/marco-polo/client.svg)](https://pkg.go.dev/github.com/live-wire/marco-polo/client)
+[![Go Report Card](https://goreportcard.com/badge/github.com/live-wire/marco-polo)](https://goreportcard.com/report/github.com/live-wire/marco-polo)
 
 ### Deployment Instructions
 - `docker run -p 1254:1254 -p 1324:1324 dbatheja/marco-polo:v0.1-alpha`
