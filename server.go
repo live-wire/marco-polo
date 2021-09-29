@@ -78,6 +78,7 @@ func main() {
 func initServers(marcoPoloService *marcoPoloService) {
 	// Seeds random data to default's HashMap
 	if *marcoPoloService.SeedRandomData {
+		log.Println("[[ Seeding random data to marco-polo ]]")
 		for i := 0; i < 5; i++ {
 			go seedHashMap(marcoPoloService.HashMaps["default"])
 		}
@@ -101,14 +102,13 @@ func initGrpc(marcoPoloService *marcoPoloService) {
 
 func initHTTP(marcoPoloService *marcoPoloService) {
 	r := mux.NewRouter()
-	r.PathPrefix("/map").Handler(http.StripPrefix("/map/", http.FileServer(http.Dir("./static/"))))
 	r.HandleFunc("/list", marcoPoloService.httpServeWrapperList)
 	r.HandleFunc("/flush", marcoPoloService.httpServeWrapperAll)
 	r.HandleFunc("/flush/{src}", marcoPoloService.httpServeWrapper)
 	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("OK")) })
-	http.Handle("/", r)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 	log.Printf("Marco Polo - HTTP up on %v \n", portOutgoing)
-	log.Fatal(http.ListenAndServe(portOutgoing, nil))
+	log.Fatal(http.ListenAndServe(portOutgoing, r))
 }
 
 func (s *marcoPoloService) httpServeWrapperList(w http.ResponseWriter, req *http.Request) {
@@ -123,7 +123,7 @@ func (s *marcoPoloService) httpServeWrapperList(w http.ResponseWriter, req *http
 
 func (s *marcoPoloService) httpServeWrapper(w http.ResponseWriter, req *http.Request) {
 	src := mux.Vars(req)["src"]
-	log.Println("Request received from:", src)
+	// log.Println("Request received from:", src)
 	ret := fmt.Sprintf(`{"%s":[]}`, src)
 	if val, ok := s.HashMaps[src]; ok {
 		//do something here

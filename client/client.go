@@ -75,12 +75,12 @@ func (x *MarcoPoloClient) consumeFromRequest(req *http.Request) {
 func (x *MarcoPoloClient) Consume(ip string, tags map[string]string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*5))
 	defer cancel()
-	r, err := x.serviceClient.Consume(ctx, &pb.Message{Ip: ip, Src: x.Src, Tags: tags})
+	_, err := x.serviceClient.Consume(ctx, &pb.Message{Ip: ip, Src: x.Src, Tags: tags})
 	if err != nil {
 		log.Printf("Could not consume: %v", err)
 		return
 	}
-	log.Printf("Consumed: %s", r.Message)
+	// log.Printf("Consumed: %s", r.Message)
 }
 
 // MarcoPoloDecorator decorates HandleFunc for quick integration
