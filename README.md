@@ -3,10 +3,17 @@
 `Marco Polo born: 1254, died: 1324`
 This is a lightweight service that will plot all your incomming request traffic on a map view. The traffic markers keep disappearing after a few seconds (configurable) making it usable for very high traffic scenarios too.
 
+![DockerHub](https://github.com/live-wire/marco-polo/actions/workflows/push-to-dockerhub-on-release.yaml/badge.svg)
+
+### Deployment Instructions
+- `docker run -p 1254:1254 -p 1324:1324 dbatheja/marco-polo:v0.1-alpha`
+- :point_up: This will expect traffic to be sent to port 1254 as a `proto/` message. See `client/` for a dummy client.
+- Add a ` -dummy` at the end of the command above to run the server with dummy traffic.
+
 ### Development Setup
 #### Docker (recommended)
-- `docker build -t marcopolo:localtest`
-- `docker run -p 1254:1254 -p 1324:1324 marcopolo:localtest -dummy` (`-dummy` will seed dummy data to the server)
+- `docker build -t marcopolocal`
+- `docker run -p 1254:1254 -p 1324:1324 marcopolocal -dummy` (`-dummy` will seed dummy data to the server)
 
 #### Local
 - Set your `$GOPATH` to `~/go/` if not already set.
