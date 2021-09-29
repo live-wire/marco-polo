@@ -82,19 +82,19 @@ func (x *HashMap) Insert(message *MarcoPoloMessage) {
 	}
 	err := enrichMessage(message, x)
 	if err != nil {
-		log.Println("Message not enriched", err)
+		// log.Println("Message not enriched", err)
 		if message.Lat == 0 && message.Long == 0 {
 			return
 		}
 	}
 	x.Data[message.Ip] = *message
 	x.RemoveAfterTTL(message.Ip, x.TTL)
-	fmt.Println("Insert SUCCESS")
+	// fmt.Println("Insert SUCCESS")
 }
 
 // InsertString for inserting json strings
 func (x *HashMap) InsertString(json string) {
-	log.Println("Inserting " + json)
+	// log.Println("Inserting " + json)
 	message, _, err := ParseJSONString(json)
 	if err != nil {
 		log.Println("Insertion failed" + err.Error())
@@ -118,7 +118,7 @@ func enrichMessage(message *MarcoPoloMessage, x *HashMap) error {
 	}
 	message.Tags["city"] = val.City
 	message.Tags["country"] = val.Country_short
-	log.Println("Enriched data point", message)
+	// log.Println("Enriched data point", message)
 	return nil
 }
 
@@ -135,7 +135,7 @@ func (x *HashMap) RemoveAfterTTL(id string, ttl int) {
 func (x *HashMap) Remove(id string) {
 	x.L.Lock()
 	defer x.L.Unlock()
-	fmt.Println("Removing " + id)
+	// fmt.Println("Removing " + id)
 	_, ok := x.Data[id]
 	if ok {
 		delete(x.Data, id)
