@@ -32,7 +32,9 @@ func (s *marcoPoloService) Consume(ctx context.Context, in *pb.Message) (*pb.Bur
 	if _, ok := s.HashMaps[in.Src]; !ok {
 		s.HashMaps[in.Src] = utils.NewHashMapDefault(s.IPDb)
 	}
-	s.HashMaps[in.Src].Insert(getMarcoPoloMessage(in))
+	msg := getMarcoPoloMessage(in)
+	log.Println(msg)
+	s.HashMaps[in.Src].Insert(msg)
 	return &pb.Burp{Status: 200, Message: "ok"}, nil
 }
 

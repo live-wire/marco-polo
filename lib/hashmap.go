@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-var defaultTTL = 5       // seconds
-var defaultMaxSize = 100 // items in map
+var defaultTTL = 86400    // seconds
+var defaultMaxSize = 1000 // items in map
 
 // HashMap is a thread safe implementation that keeps deleting items after
 type HashMap struct {
@@ -82,7 +82,7 @@ func (x *HashMap) Insert(message *MarcoPoloMessage) {
 	}
 	err := enrichMessage(message, x)
 	if err != nil {
-		// log.Println("Message not enriched", err)
+		log.Println("Message not enriched", err)
 		if message.Lat == 0 && message.Long == 0 {
 			return
 		}

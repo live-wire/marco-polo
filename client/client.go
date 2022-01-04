@@ -49,10 +49,12 @@ func fromRequest(req *http.Request) (net.IP, error) {
 	if err != nil {
 		return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
 	}
+	log.Println("ip", ip)
 	userIP := net.ParseIP(ip)
 	if userIP == nil {
 		return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
 	}
+	log.Println("userIp", userIP)
 	return userIP, nil
 }
 
