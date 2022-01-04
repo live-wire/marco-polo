@@ -66,6 +66,7 @@ func (x *MarcoPoloClient) consumeFromRequest(req *http.Request) {
 	}
 	ip, err := fromRequest(req)
 	if err != nil {
+		log.Println("request consumption error", err)
 		return
 	}
 	x.Consume(ip.String(), nil)
