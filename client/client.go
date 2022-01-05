@@ -63,7 +63,7 @@ func fromHeader(req *http.Request) (string, error) {
 	forward := req.Header.Get("X-Forwarded-For")
 	log.Println("forward", forward)
 	forwards := strings.Split(forward, ",")
-	if len(forwards) < 1 {
+	if len(forward) < 1 {
 		log.Println("No X-Forwarded-For header found")
 		ip, err := fromRequest(req)
 		if err != nil {
