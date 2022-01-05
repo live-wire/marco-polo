@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,6 +59,21 @@ func fromRequest(req *http.Request) (net.IP, error) {
 	return userIP, nil
 }
 
+func fromHeader(req *http.Request) (string, error) {
+	forward := req.Header.Get("X-Forwarded-For")
+	log.Println("forward", forward)
+	forwards := strings.Split(forward, ",")
+	if len(forwards) < 1 {
+		log.Println("No X-Forwarded-For header found")
+		ip, err := fromRequest(req)
+		if err != nil {
+			return "", err
+		}
+		return ip.String(), nil
+	}
+	return forwards[0], nil
+}
+
 // Consume sends relevant information to MarcoPolo Service
 func (x *MarcoPoloClient) consumeFromRequest(req *http.Request) {
 	x.l.Lock()
@@ -66,12 +82,12 @@ func (x *MarcoPoloClient) consumeFromRequest(req *http.Request) {
 		log.Println("gRPC connection is closed.")
 		return
 	}
-	ip, err := fromRequest(req)
+	ip, err := fromHeader(req)
 	if err != nil {
-		log.Println("request consumption error", err)
+		log.Println("ip extraction error", err)
 		return
 	}
-	x.Consume(ip.String(), nil)
+	x.Consume(ip, nil)
 }
 
 // Consume sends an IP address point to MarcoPolo server
