@@ -50,21 +50,21 @@ func fromRequest(req *http.Request) (net.IP, error) {
 	if err != nil {
 		return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
 	}
-	log.Println("ip", ip)
+	// log.Println("ip", ip)
 	userIP := net.ParseIP(ip)
 	if userIP == nil {
 		return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
 	}
-	log.Println("userIp", userIP)
+	// log.Println("userIp", userIP)
 	return userIP, nil
 }
 
 func fromHeader(req *http.Request) (string, error) {
 	forward := req.Header.Get("X-Forwarded-For")
-	log.Println("forward", forward)
+	// log.Println("forward", forward)
 	forwards := strings.Split(forward, ",")
 	if len(forward) < 1 {
-		log.Println("No X-Forwarded-For header found")
+		// log.Println("No X-Forwarded-For header found")
 		ip, err := fromRequest(req)
 		if err != nil {
 			return "", err
@@ -100,7 +100,7 @@ func (x *MarcoPoloClient) Consume(ip string, tags map[string]string) {
 		log.Printf("Could not consume: %v", err)
 		return
 	}
-	log.Printf("Consumed: %v", msg)
+	// log.Printf("Consumed: %v", msg)
 }
 
 // MarcoPoloDecorator decorates HandleFunc for quick integration
