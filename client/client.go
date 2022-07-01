@@ -110,3 +110,11 @@ func (x *MarcoPoloClient) MarcoPoloDecorator(f func(http.ResponseWriter, *http.R
 		f(w, req)
 	}
 }
+
+// MarcoPoloHandlerFunc is a type of http.HandlerFunc
+func (x *MarcoPoloClient) MarcoPoloHandler(f http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		x.consumeFromRequest(req)
+		f.ServeHTTP(w, req)
+	})
+}
