@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	pb "github.com/live-wire/marco-polo/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -117,4 +118,12 @@ func (x *MarcoPoloClient) MarcoPoloHandler(f http.Handler) http.Handler {
 		x.consumeFromRequest(req)
 		f.ServeHTTP(w, req)
 	})
+}
+
+// MarcoPoloGinHandlerFunc is a type of gin.HandlerFunc
+func (x *MarcoPoloClient) MarcoPoloGinHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		x.consumeFromRequest(c.Request)
+		c.Next()
+	}
 }
