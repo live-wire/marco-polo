@@ -8,6 +8,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/ip2location/ip2location-go v8.3.0+incompatible
 	github.com/pkg/errors v0.9.1
-	golang.org/x/net v0.0.0-20210929193557-e81a3d93ecf6
+	golang.org/x/net v0.7.0
 	google.golang.org/grpc v1.41.0
 )
